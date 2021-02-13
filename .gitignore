@@ -5,7 +5,7 @@ data.pickle
 # build and distribution files that are auto-generated
 build/
 dist/
-
+venv/
 # notes to self
 uploadnotes.txt
 
