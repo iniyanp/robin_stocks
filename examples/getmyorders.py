@@ -7,16 +7,6 @@ from util import get_completed_option_orders, get_order_dict
 from datetime import datetime
 from datetime import date
 
-def getOrders():
-    login = r.login(os.getenv('robin_username'), os.getenv('robin_password'))
-    allOrders = orders.get_all_option_orders()
-    i = 0
-    for order in allOrders:
-        if order['state'] == 'filled':
-            print(order['chain_symbol'])
-            i = i + 1
-    print(i)
-
 def exportOrders():
     login = r.login(os.getenv('robin_username'), os.getenv('robin_password'))
     export.export_completed_option_orders('/Users/iniyanparamasivam/code-base/robin_stocks')
