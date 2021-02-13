@@ -145,13 +145,13 @@ def export_completed_option_orders(dir_path, file_name=None):
             'opening_strategy',
             'closing_strategy',
             'price',
-            'processed_quantity'
         ])
         for order in all_orders:
             if order['state'] == 'filled':
                 for leg in order['legs']:
                     instrument_data = helper.request_get(leg['option'])
                     csv_writer.writerow([
+                        order['ref_id'],
                         order['chain_symbol'],
                         instrument_data['expiration_date'],
                         instrument_data['strike_price'],

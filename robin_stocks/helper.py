@@ -305,7 +305,8 @@ def request_get(url, dataType='regular', payload=None, jsonify_data=True):
             return([None])
 
         if nextData['next']:
-            print('Found Additional pages.', file=get_output())
+            # print('Found Additional pages.', file=get_output())
+            pass
         while nextData['next']:
             try:
                 res = SESSION.get(nextData['next'])
@@ -314,7 +315,7 @@ def request_get(url, dataType='regular', payload=None, jsonify_data=True):
             except:
                 print('Additional pages exist but could not be loaded.', file=get_output())
                 return(data)
-            print('Loading page '+str(counter)+' ...', file=get_output())
+            # print('Loading page '+str(counter)+' ...', file=get_output())
             counter += 1
             for item in nextData['results']:
                 data.append(item)
