@@ -15,6 +15,7 @@ class MyOrder:
     opening_strategy: str
     closing_strategy: str
     side: str
+    pl: float
 
 
 @helper.login_required
@@ -48,7 +49,8 @@ So we will take only the sell side since sell side correctly reflects the price.
                                        order['price'],
                                        order['opening_strategy'],
                                        order['closing_strategy'],
-                                       leg['side']
+                                       leg['side'],
+                                       None
                                        )
                     if key in data:
                         # If buy is already assigned in dict, overwrite it.
