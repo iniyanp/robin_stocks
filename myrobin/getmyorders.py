@@ -46,6 +46,9 @@ def getOrders():
     completed_orders_dict = get_order_dict(completed_orders)
 
     (ongoing_orders, past_orders) = separateOrders(completed_orders_dict)
+    return (ongoing_orders, past_orders)
+
+def getPastOrdersPL(past_orders):
 
     result_list = convertDictToListOrders(past_orders)
     order_pl_outer_list = []
@@ -54,20 +57,12 @@ def getOrders():
         pl = calculate_profit_loss(outer)
         order_pl_outer_list.append(MyOrdersProfitLoss(outer, pl))
 
-    # for inner_obj in order_pl_outer_list:
-    #     for order in inner_obj.orders:
-    #         print(order)
-    #         print("\n")
-    #     print(inner_obj.pl)
-    #     print("\n")
-    #
-    #     print("#######################")
-
     return order_pl_outer_list
 
 
 
 def calculate_profit_loss(orders):
+    # TODO: correct this logic. If only some orders are closed, (by buying back), we will have issues.
 
     pl = 0.0
     for order in orders:
@@ -124,4 +119,5 @@ if __name__ == "__main__":
     # d1 = datetime.strptime('2021-02-11', "%Y-%m-%d").date()
     # now = date.today()
     # print(d1 < now)
-    getOrders()
+    (ongoing_orders, past_orders) = getOrders()
+    getPastOrdersPL(past_orders)

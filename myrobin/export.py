@@ -4,8 +4,8 @@ import os
 import os.path
 import pickle
 
-from funfacts import getPLBySymbols
-from getmyorders import getOrders
+from funfacts import getPLBySymbols, getPLByDatePerBatch, getPLBByDate
+from getmyorders import getOrders, getPastOrdersPL
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
@@ -205,6 +205,23 @@ def writeHeaderForPLBySymbols(service, sheet_name):
     print('{0} cells updated.'.format(result.get('updatedCells')))
 
 
+def writeHeaderForPLByDate(service, sheet_name):
+    values = [
+        [
+            "Month/Year",
+            "Profit"
+        ]
+    ]
+    body = {
+        'values': values
+    }
+
+    result = service.spreadsheets().values().update(
+        spreadsheetId=spreadsheet_id, range=sheet_name + "!A1:B2",
+        valueInputOption="USER_ENTERED",
+        body=body).execute()
+    print('{0} cells updated.'.format(result.get('updatedCells')))
+
 def writePLBySymbols(service, all_closed_orders, sheet_name):
     sorted_dict = getPLBySymbols(all_closed_orders)
     writeHeaderForPLBySymbols(service, sheet_name)
@@ -214,6 +231,14 @@ def writePLBySymbols(service, all_closed_orders, sheet_name):
     writeTotal(sheet_name, total, position)
 
 
+def writePLByMonth(service, past_orders, sheet_name):
+    date_pl_dict = getPLBByDate(past_orders)
+    writeHeaderForPLBySymbols(service, sheet_name)
+    writeAllOrders(service, list(date_pl_dict.items()), sheet_name)
+    total = sum(date_pl_dict.values())
+    position = "B" + str(len(date_pl_dict) + 3) # add header and one blank line
+    writeTotal(sheet_name, total, position)
+
 if __name__ == "__main__":
     extract_data()
     creds = getCreds()
@@ -221,10 +246,17 @@ if __name__ == "__main__":
     # writeHeader(service, "Sheet1")
     # all_wheeling_orders = extract_data()
     # writeAllOrders(service, all_wheeling_orders, "Sheet1")
-    all_closed_orders = getOrders()
+    (ongoing_orders, past_orders) = getOrders()
+    past_orders_pl = getPastOrdersPL(past_orders)
+
     # always create a sheet before writing headers and values.
-    # writeHeaderForClosedOrders(service, "Closed-CSP")
-    # writeClosedOrders(service, all_closed_orders, "Closed-CSP")
+    writeHeaderForClosedOrders(service, "Closed-CSP")
+    writeClosedOrders(service, past_orders_pl, "Closed-CSP")
+
     # TODO: Write one sheet for covered call
     # 2 more sheets for current openings.
-    writePLBySymbols(service, all_closed_orders, "PL-by-Symbols")
+
+    writePLBySymbols(service, past_orders_pl, "PL-by-Symbols")
+    # # getPLByDatePerBatch(past_orders[next(iter(past_orders))])
+    writePLByMonth(service, past_orders, "PL-by-Month")
+
