@@ -108,7 +108,7 @@ def separateOrders(input):
         res = all(ele == closing_strategies[0] for ele in closing_strategies)
         exp_date = datetime.strptime(values[0].exp_date, "%Y-%m-%d").date()
         now = date.today()
-        if res and exp_date > now:
+        if res and closing_strategies[0] is None and exp_date > now:
             ongoing_orders[key] = values
         else:
             past_orders[key] = values
@@ -119,5 +119,6 @@ if __name__ == "__main__":
     # d1 = datetime.strptime('2021-02-11', "%Y-%m-%d").date()
     # now = date.today()
     # print(d1 < now)
-    (ongoing_orders, past_orders) = getOrders()
-    getPastOrdersPL(past_orders)
+    # (ongoing_orders, past_orders) = getOrders()
+    # getPastOrdersPL(past_orders)
+    exportOrders()

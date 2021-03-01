@@ -18,6 +18,10 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
 spreadsheet_id = "1EZ2cXKFi1xmKNJ0NGqSPbCEDrz_2_oOlDBtChbHVNYQ"
 
+CLOSED_CSP_SHEET_NAME = 'Closed-CSP'
+PL_BY_SYMBOLS_SHEET_NAME = 'PL-by-Symbols'
+PL_BY_MONTH_SHEET_NAME = 'PL-by-Month'
+
 
 def getCreds():
     creds = None
@@ -233,30 +237,45 @@ def writePLBySymbols(service, all_closed_orders, sheet_name):
 
 def writePLByMonth(service, past_orders, sheet_name):
     date_pl_dict = getPLBByDate(past_orders)
-    writeHeaderForPLBySymbols(service, sheet_name)
+    writeHeaderForPLByDate(service, sheet_name)
     writeAllOrders(service, list(date_pl_dict.items()), sheet_name)
     total = sum(date_pl_dict.values())
     position = "B" + str(len(date_pl_dict) + 3) # add header and one blank line
     writeTotal(sheet_name, total, position)
 
+
+def clearSheet(service, sheet_name):
+    range_all = '{0}!A1:Z'.format(sheet_name)
+    body = {}
+    result = service.spreadsheets().values().clear(
+        spreadsheetId=spreadsheet_id, range=range_all,
+        body=body).execute()
+    print(result)
+
+
 if __name__ == "__main__":
     extract_data()
     creds = getCreds()
     service = build('sheets', 'v4', credentials=creds)
-    # writeHeader(service, "Sheet1")
-    # all_wheeling_orders = extract_data()
-    # writeAllOrders(service, all_wheeling_orders, "Sheet1")
+
+    clearSheet(service, CLOSED_CSP_SHEET_NAME)
+    clearSheet(service, PL_BY_SYMBOLS_SHEET_NAME)
+    clearSheet(service, PL_BY_MONTH_SHEET_NAME)
+
+    writeHeader(service, "Sheet1")
+    all_wheeling_orders = extract_data()
+    writeAllOrders(service, all_wheeling_orders, "Sheet1")
     (ongoing_orders, past_orders) = getOrders()
     past_orders_pl = getPastOrdersPL(past_orders)
 
     # always create a sheet before writing headers and values.
-    writeHeaderForClosedOrders(service, "Closed-CSP")
-    writeClosedOrders(service, past_orders_pl, "Closed-CSP")
+    writeHeaderForClosedOrders(service, CLOSED_CSP_SHEET_NAME)
+    writeClosedOrders(service, past_orders_pl, CLOSED_CSP_SHEET_NAME)
 
     # TODO: Write one sheet for covered call
     # 2 more sheets for current openings.
 
-    writePLBySymbols(service, past_orders_pl, "PL-by-Symbols")
+    writePLBySymbols(service, past_orders_pl, PL_BY_SYMBOLS_SHEET_NAME)
     # # getPLByDatePerBatch(past_orders[next(iter(past_orders))])
-    writePLByMonth(service, past_orders, "PL-by-Month")
+    writePLByMonth(service, past_orders, PL_BY_MONTH_SHEET_NAME)
 

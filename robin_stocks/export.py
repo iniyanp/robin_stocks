@@ -133,6 +133,7 @@ def export_completed_option_orders(dir_path, file_name=None):
     with open(file_path, 'w', newline='') as f:
         csv_writer = writer(f)
         csv_writer.writerow([
+            'ref_id',
             'chain_symbol',
             'expiration_date',
             'strike_price',
@@ -145,6 +146,7 @@ def export_completed_option_orders(dir_path, file_name=None):
             'opening_strategy',
             'closing_strategy',
             'price',
+            'processed_quantity'
         ])
         for order in all_orders:
             if order['state'] == 'filled':
